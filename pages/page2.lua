@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------
 -- 
--- page1.lua
+-- page2.lua
 -- 
 -----------------------------------------------------------------------------------------
 
@@ -11,14 +11,14 @@ local background, nextPageButton, previousPageButton, contentText
 
 local function onNextPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "lastPage", "slideLeft", 800 )
+		composer.gotoScene( "pages.page3", "slideLeft", 800 )
 		return true
 	end
 end
 
 local function onPreviousPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "title", "slideRight", 800 )
+		composer.gotoScene( "pages.page1", "slideRight", 800 )
 		return true
 	end
 end
@@ -26,20 +26,20 @@ end
 function scene:create( event )
 	local sceneGroup = self.view
 
-	background = display.newImageRect( sceneGroup, "pageContentBg.png", display.contentWidth, display.contentHeight )
+	background = display.newImageRect( sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
 	background.x, background.y = 0, 0
 
-	nextPageButton = display.newImageRect( sceneGroup, "nextpagebutton.png", 87, 107 )
+	nextPageButton = display.newImageRect( sceneGroup, "assets/imgs/nextpagebutton.png", 87, 107 )
 	nextPageButton.x = 670
 	nextPageButton.y = 950
 
-	previousPageButton = display.newImageRect( sceneGroup, "previousPageButton.png", 87, 100 )
+	previousPageButton = display.newImageRect( sceneGroup, "assets/imgs/previousPageButton.png", 87, 100 )
 	previousPageButton.x = 90
 	previousPageButton.y = 944
 
-	contentText = display.newText( sceneGroup, "Páginas de conteúdo", display.contentCenterX, 210, "ComicNeue-Regular", 50 )
+	contentText = display.newText( sceneGroup, "Página 3", display.contentCenterX, 210, "ComicNeue-Regular", 50 )
 	contentText:setFillColor( 0.165, 0.267, 0.365 )
 
 	sceneGroup:insert( nextPageButton )

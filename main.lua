@@ -11,4 +11,4 @@ display.setStatusBar( display.HiddenStatusBar )
 local composer = require "composer"
 
 -- load title screen
-composer.gotoScene( "title", "fade" )
+composer.gotoScene( "pages.cover", "fade" )

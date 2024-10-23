@@ -1,37 +1,49 @@
 -----------------------------------------------------------------------------------------
---
--- title.lua
---
+-- 
+-- page1.lua
+-- 
 -----------------------------------------------------------------------------------------
 
 local composer = require( "composer" )
 local scene = composer.newScene()
 
---------------------------------------------
-
-local background
-local nextPageButton
+local background, nextPageButton, previousPageButton, contentText
 
 local function onNextPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "page1", "slideLeft", 800 )
+		composer.gotoScene( "pages.page2", "slideLeft", 800 )
+		return true
+	end
+end
+
+local function onPreviousPageButtonTouch( self, event )
+	if event.phase == "ended" or event.phase == "cancelled" then
+		composer.gotoScene( "pages.cover", "slideRight", 800 )
 		return true
 	end
 end
 
 function scene:create( event )
 	local sceneGroup = self.view
-	background = display.newImageRect( sceneGroup, "coverpg1.png", display.contentWidth, display.contentHeight )
+
+	background = display.newImageRect( sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
 	background.x, background.y = 0, 0
 
-	nextPageButton = display.newImageRect( sceneGroup, "nextpagebutton.png", 87, 107 )
+	nextPageButton = display.newImageRect( sceneGroup, "assets/imgs/nextpagebutton.png", 87, 107 )
 	nextPageButton.x = 670
 	nextPageButton.y = 950
 
-	sceneGroup:insert( background )
+	previousPageButton = display.newImageRect( sceneGroup, "assets/imgs/previousPageButton.png", 87, 100 )
+	previousPageButton.x = 90
+	previousPageButton.y = 944
+
+	contentText = display.newText( sceneGroup, "Página 2", display.contentCenterX, 210, "ComicNeue-Regular", 50 )
+	contentText:setFillColor( 0.165, 0.267, 0.365 )
+
 	sceneGroup:insert( nextPageButton )
+	sceneGroup:insert( previousPageButton )
 end
 
 function scene:show( event )
@@ -42,7 +54,10 @@ function scene:show( event )
 	elseif phase == "did" then
 		nextPageButton.touch = onNextPageButtonTouch
 		nextPageButton:addEventListener( "touch", nextPageButton )
-	end
+
+		previousPageButton.touch = onPreviousPageButtonTouch
+		previousPageButton:addEventListener( "touch", previousPageButton )
+	end	
 end
 
 function scene:hide( event )
@@ -51,13 +66,13 @@ function scene:hide( event )
 	
 	if event.phase == "will" then
 		nextPageButton:removeEventListener( "touch", nextPageButton )
-		
-	elseif phase == "did" then
-	end	
+		previousPageButton:removeEventListener( "touch", previousPageButton )
+	end
 end
 
 function scene:destroy( event )
 	local sceneGroup = self.view
+	
 end
 
 ---------------------------------------------------------------------------------

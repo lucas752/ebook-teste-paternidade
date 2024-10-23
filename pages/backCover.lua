@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------
 -- 
--- lastPage.lua
+-- backCover.lua
 -- 
 -----------------------------------------------------------------------------------------
 
@@ -11,14 +11,14 @@ local background, reloadPageButton, previousPageButton, informationBox, referenc
 
 local function onReloadButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "title", "slideLeft", 800 )
+		composer.gotoScene( "pages.cover", "slideRight", 800 )
 		return true
 	end
 end
 
 local function onPreviousPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "page1", "slideRight", 800 )
+		composer.gotoScene( "pages.page5", "slideRight", 800 )
 		return true
 	end
 end
@@ -51,33 +51,33 @@ end
 function scene:create( event )
 	local sceneGroup = self.view
 
-	background = display.newImageRect( sceneGroup, "lastPageBg.png", display.contentWidth, display.contentHeight )
+	background = display.newImageRect( sceneGroup, "assets/imgs/lastPageBg.png", display.contentWidth, display.contentHeight )
 	background.anchorX = 0
 	background.anchorY = 0
 	background.x, background.y = 0, 0
 
-	reloadPageButton = display.newImageRect( sceneGroup, "reloadButton.png", 87, 107 )
+	reloadPageButton = display.newImageRect( sceneGroup, "assets/imgs/reloadButton.png", 87, 107 )
 	reloadPageButton.x = 670
 	reloadPageButton.y = 950
 
-	previousPageButton = display.newImageRect( sceneGroup, "previousPageButton.png", 87, 100 )
+	previousPageButton = display.newImageRect( sceneGroup, "assets/imgs/previousPageButton.png", 87, 100 )
 	previousPageButton.x = 90
 	previousPageButton.y = 944
 	
-	informationBox = display.newImageRect( sceneGroup, "lastPageInformation.png", 516, 238 )
+	informationBox = display.newImageRect( sceneGroup, "assets/imgs/lastPageInformation.png", 516, 238 )
 	informationBox.x = display.contentCenterX
 	informationBox.y = display.contentCenterY
 
-	referencesButton = display.newImageRect( sceneGroup, "referencesButton.png", 205, 41 )
+	referencesButton = display.newImageRect( sceneGroup, "assets/imgs/referencesButton.png", 205, 41 )
 	referencesButton.x = display.contentCenterX
 	referencesButton.y = 575
 
-	referencesBox = display.newImageRect( sceneGroup, "referencesBox.png", 546, 438 )
+	referencesBox = display.newImageRect( sceneGroup, "assets/imgs/referencesBox.png", 546, 438 )
 	referencesBox.x = display.contentCenterX
 	referencesBox.y = 575
 	referencesBox.isVisible = false
 
-    closeReferencesButton = display.newImageRect( sceneGroup, "closeButton.png", 35, 34 )
+    closeReferencesButton = display.newImageRect( sceneGroup, "assets/imgs/closeButton.png", 35, 34 )
 	closeReferencesButton.x = 600
 	closeReferencesButton.y = 400
 	closeReferencesButton.isVisible = false
