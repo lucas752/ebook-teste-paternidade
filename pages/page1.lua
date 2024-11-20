@@ -112,30 +112,30 @@ function scene:create(event)
     })
     contentText:setFillColor(0.165, 0.267, 0.365)
 
-    moreDnaButton = display.newImageRect(sceneGroup, "assets/imgs/moreDnaButton.png", 205, 41)
+    moreDnaButton = display.newImageRect(sceneGroup, "assets/imgs/pg1/moreDnaButton.png", 205, 41)
     moreDnaButton.x = display.contentCenterX
     moreDnaButton.y = 750
 
-    dnaPrecisionButton = display.newImageRect(sceneGroup, "assets/imgs/dnaPrecisionButton.png", 205, 41)
+    dnaPrecisionButton = display.newImageRect(sceneGroup, "assets/imgs/pg1/dnaPrecisionButton.png", 205, 41)
     dnaPrecisionButton.x = display.contentCenterX
     dnaPrecisionButton.y = 807
 
-    moreDnaBox = display.newImageRect(sceneGroup, "assets/imgs/moreDnaBox.png", 385.84, 229.6)
+    moreDnaBox = display.newImageRect(sceneGroup, "assets/imgs/pg1/moreDnaBox.png", 385.84, 229.6)
     moreDnaBox.x = display.contentCenterX
     moreDnaBox.y = 890
     moreDnaBox.isVisible = false
 
-    dnaPrecisionBox = display.newImageRect(sceneGroup, "assets/imgs/dnaPrecisionBox.png", 385.84, 159.6)
+    dnaPrecisionBox = display.newImageRect(sceneGroup, "assets/imgs/pg1/dnaPrecisionBox.png", 385.84, 159.6)
     dnaPrecisionBox.x = display.contentCenterX
     dnaPrecisionBox.y = 910
     dnaPrecisionBox.isVisible = false
 
-    moreDnaClose = display.newImageRect(sceneGroup, "assets/imgs/closeRedButton.png", 26.36, 23.33)
+    moreDnaClose = display.newImageRect(sceneGroup, "assets/imgs/pg1/closeRedButton.png", 26.36, 23.33)
     moreDnaClose.x = 538
     moreDnaClose.y = 800
     moreDnaClose.isVisible = false
 
-    dnaPrecisionClose = display.newImageRect(sceneGroup, "assets/imgs/closeRedButton.png", 26.36, 23.33)
+    dnaPrecisionClose = display.newImageRect(sceneGroup, "assets/imgs/pg1/closeRedButton.png", 26.36, 23.33)
     dnaPrecisionClose.x = 538
     dnaPrecisionClose.y = 850
     dnaPrecisionClose.isVisible = false
