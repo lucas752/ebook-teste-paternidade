@@ -4,84 +4,286 @@
 -- 
 -----------------------------------------------------------------------------------------
 
-local composer = require( "composer" )
+local composer = require("composer")
 local scene = composer.newScene()
 
-local background, nextPageButton, previousPageButton, contentText
+local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, extractionDevice, deviceScreen, selectedOptionDenaturation, selectedOptionExtension, selectedOptionGirdling, mockupOption1, mockupOption2, mockupOption3, denaturationContent, girdlingContent, extensionContent
 
-local function onNextPageButtonTouch( self, event )
-	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "pages.page5", "slideLeft", 800 )
-		return true
-	end
+system.activate("multitouch")
+
+local finger1, finger2
+local initialDistance
+local isZooming = false
+
+local function calculateDistance(x1, y1, x2, y2)
+    local dx = x2 - x1
+    local dy = y2 - y1
+    return math.sqrt(dx * dx + dy * dy)
 end
 
-local function onPreviousPageButtonTouch( self, event )
-	if event.phase == "ended" or event.phase == "cancelled" then
-		composer.gotoScene( "pages.page3", "slideRight", 800 )
-		return true
-	end
+local function updateElementsVisibility()
+    local shouldShow = deviceScreen.isVisible
+
+    -- Atualizar visibilidade dos elementos
+    selectedOptionDenaturation.isVisible = shouldShow
+    selectedOptionExtension.isVisible = false -- permanece falso inicialmente
+    selectedOptionGirdling.isVisible = false -- permanece falso inicialmente
+
+    mockupOption1.isVisible = shouldShow
+    mockupOption1.isHitTestable = shouldShow
+
+    mockupOption2.isVisible = shouldShow
+    mockupOption2.isHitTestable = shouldShow
+
+    mockupOption3.isVisible = shouldShow
+    mockupOption3.isHitTestable = shouldShow
+
+    denaturationContent.isVisible = shouldShow
+    girdlingContent.isVisible = false -- permanece falso inicialmente
+    extensionContent.isVisible = false -- permanece falso inicialmente
 end
 
-function scene:create( event )
-	local sceneGroup = self.view
+local function onTouch(event)
+    if event.phase == "began" then
+        if not finger1 then
+            finger1 = event
+        elseif not finger2 then
+            finger2 = event
+            isZooming = true
+            initialDistance = calculateDistance(finger1.x, finger1.y, finger2.x, finger2.y)
+        end
+    elseif event.phase == "moved" and isZooming then
+        if finger1 and finger2 and event.id == finger1.id then
+            finger1 = event
+        elseif finger1 and finger2 and event.id == finger2.id then
+            finger2 = event
+        end
 
-	background = display.newImageRect( sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight )
-	background.anchorX = 0
-	background.anchorY = 0
-	background.x, background.y = 0, 0
+        if finger1 and finger2 then
+            local currentDistance = calculateDistance(finger1.x, finger1.y, finger2.x, finger2.y)
+            local scale = currentDistance / initialDistance
 
-	nextPageButton = display.newImageRect( sceneGroup, "assets/imgs/nextpagebutton.png", 87, 107 )
-	nextPageButton.x = 670
-	nextPageButton.y = 950
+            extractionDevice.width = extractionDevice.width * scale
+            extractionDevice.height = extractionDevice.height * scale
 
-	previousPageButton = display.newImageRect( sceneGroup, "assets/imgs/previousPageButton.png", 87, 100 )
-	previousPageButton.x = 90
-	previousPageButton.y = 944
+            initialDistance = currentDistance
+        end
+    elseif event.phase == "ended" or event.phase == "cancelled" then
+        if event.id == finger1.id then
+            finger1 = nil
+        elseif event.id == finger2.id then
+            finger2 = nil
+        end
 
-	contentText = display.newText( sceneGroup, "Página 5", display.contentCenterX, 210, "ComicNeue-Regular", 50 )
-	contentText:setFillColor( 0.165, 0.267, 0.365 )
+        if not finger1 or not finger2 then
+            isZooming = false
+        end
 
-	sceneGroup:insert( nextPageButton )
-	sceneGroup:insert( previousPageButton )
+        if extractionDevice.width > 500 then
+            extractionDevice.isVisible = false
+            deviceScreen.isVisible = true
+
+            -- Atualizar visibilidade dos outros elementos
+            updateElementsVisibility()
+        end
+    end
+    return true
 end
 
-function scene:show( event )
-	local sceneGroup = self.view
-	local phase = event.phase
-	
-	if phase == "will" then
-	elseif phase == "did" then
-		nextPageButton.touch = onNextPageButtonTouch
-		nextPageButton:addEventListener( "touch", nextPageButton )
-
-		previousPageButton.touch = onPreviousPageButtonTouch
-		previousPageButton:addEventListener( "touch", previousPageButton )
-	end	
+local function onNextPageButtonTouch(event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        composer.gotoScene("pages.page5", {effect = "slideLeft", time = 800})
+        return true
+    end
 end
 
-function scene:hide( event )
-	local sceneGroup = self.view
-	local phase = event.phase
-	
-	if event.phase == "will" then
-		nextPageButton:removeEventListener( "touch", nextPageButton )
-		previousPageButton:removeEventListener( "touch", previousPageButton )
-	end
+local function onPreviousPageButtonTouch(event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        composer.gotoScene("pages.page3", {effect = "slideRight", time = 800})
+        return true
+    end
 end
 
-function scene:destroy( event )
-	local sceneGroup = self.view
-	
+local function updateSelectedOption(selectedOption)
+    selectedOptionDenaturation.isVisible = false
+    selectedOptionExtension.isVisible = false
+    selectedOptionGirdling.isVisible = false
+
+    selectedOption.isVisible = true
 end
 
----------------------------------------------------------------------------------
+local function updateContent(selectedContent)
+    denaturationContent.isVisible = false
+    girdlingContent.isVisible = false
+    extensionContent.isVisible = false
 
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
+    -- Mostrar o conteúdo selecionado
+    selectedContent.isVisible = true
+end
 
------------------------------------------------------------------------------------------
+local function onMockupOption1Touch(event)
+    if event.phase == "ended" then
+        updateSelectedOption(selectedOptionDenaturation)
+        updateContent(denaturationContent)
+    end
+    return true
+end
+
+local function onMockupOption2Touch(event)
+    if event.phase == "ended" then
+        updateSelectedOption(selectedOptionGirdling)
+        updateContent(girdlingContent)
+    end
+    return true
+end
+
+local function onMockupOption3Touch(event)
+    if event.phase == "ended" then
+        updateSelectedOption(selectedOptionExtension)
+        updateContent(extensionContent)
+    end
+    return true
+end
+
+function scene:create(event)
+    local sceneGroup = self.view
+
+    background = display.newImageRect(sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight)
+    background.anchorX = 0
+    background.anchorY = 0
+    background.x, background.y = 0, 0
+
+    nextPageButton = display.newImageRect(sceneGroup, "assets/imgs/nextpagebutton.png", 87, 107)
+    nextPageButton.x = 670
+    nextPageButton.y = 950
+
+    previousPageButton = display.newImageRect(sceneGroup, "assets/imgs/previousPageButton.png", 87, 100)
+    previousPageButton.x = 90
+    previousPageButton.y = 944
+
+    instructionText = display.newText({
+        parent = sceneGroup,
+        text = "Faça o movimento de pinça com 2 dedos na máquina para ver o DNA sendo ampliado",
+        x = display.contentCenterX,
+        y = 58,
+        width = 300,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 22,
+        align = "center"
+    })
+    instructionText:setFillColor(1, 1, 1)
+
+    titleText = display.newText(sceneGroup, "Amplificação do DNA", display.contentCenterX, 210, "ComicNeue-Regular", 50)
+    titleText:setFillColor(0.165, 0.267, 0.365)
+
+    textBackground = display.newImageRect(sceneGroup, "assets/imgs/textBackground.png", display.contentWidth, 580)
+    textBackground.anchorX = 0.5
+    textBackground.anchorY = 0.5
+    textBackground.x = display.contentCenterX
+    textBackground.y = 590
+
+    contentText = display.newText({
+        parent = sceneGroup,
+        text = "No laboratório, o DNA coletado é amplificado através da Reação em Cadeia da Polimerase (PCR), para que haja quantidade suficiente de material genético para análise. A amplificação é essencial para a precisão do teste de paternidade. O DNA é colocado em uma máquina para realizar este processo.",
+        x = display.contentCenterX,
+        y = 490,
+        width = 689,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 32,
+        align = "left"
+    })
+    contentText:setFillColor(0.165, 0.267, 0.365)
+
+    extractionDevice = display.newImageRect(sceneGroup, "assets/imgs/pg4/extractionDevice.png", 361.9, 324.1)
+    extractionDevice.x = display.contentCenterX
+    extractionDevice.y = 770
+
+    deviceScreen = display.newImageRect(sceneGroup, "assets/imgs/pg4/deviceScreen.png", 554.47, 437.92)
+    deviceScreen.x = display.contentCenterX
+    deviceScreen.y = 600
+    deviceScreen.isVisible = false
+
+    selectedOptionDenaturation = display.newImageRect(sceneGroup, "assets/imgs/pg4/selectedOptionDenaturation.png", 362.02, 57.28)
+    selectedOptionDenaturation.x = display.contentCenterX
+    selectedOptionDenaturation.y = 460
+    selectedOptionDenaturation.isVisible = false
+
+    selectedOptionExtension = display.newImageRect(sceneGroup, "assets/imgs/pg4/selectedOptionExtension.png", 362.02, 57.28)
+    selectedOptionExtension.x = display.contentCenterX
+    selectedOptionExtension.y = 460
+    selectedOptionExtension.isVisible = false
+
+    selectedOptionGirdling = display.newImageRect(sceneGroup, "assets/imgs/pg4/selectedOptiongGirdling.png", 362.02, 57.28)
+    selectedOptionGirdling.x = display.contentCenterX
+    selectedOptionGirdling.y = 460
+    selectedOptionGirdling.isVisible = false
+    
+    mockupOption1 = display.newImageRect(sceneGroup, "assets/imgs/pg4/mockupOption.png", 121.1, 49.7)
+    mockupOption1.x = 265
+    mockupOption1.y = 456
+    mockupOption1.isVisible = false
+    mockupOption1.isHitTestable = false
+
+    mockupOption2 = display.newImageRect(sceneGroup, "assets/imgs/pg4/mockupOption.png", 121.1, 49.7)
+    mockupOption2.x = display.contentCenterX
+    mockupOption2.y = 456
+    mockupOption2.isVisible = false
+    mockupOption2.isHitTestable = false
+
+    mockupOption3 = display.newImageRect(sceneGroup, "assets/imgs/pg4/mockupOption.png", 121.1, 49.7)
+    mockupOption3.x = 504
+    mockupOption3.y = 456
+    mockupOption3.isVisible = false
+    mockupOption3.isHitTestable = false
+
+    denaturationContent = display.newImageRect(sceneGroup, "assets/imgs/pg4/denaturationContent.png", 439.6, 231)
+    denaturationContent.x = display.contentCenterX
+    denaturationContent.y = 620
+    denaturationContent.isVisible = false
+    
+    girdlingContent = display.newImageRect(sceneGroup, "assets/imgs/pg4/girdlingContent.png", 361.6, 227.1)
+    girdlingContent.x = display.contentCenterX
+    girdlingContent.y = 620
+    girdlingContent.isVisible = false
+    
+    extensionContent = display.newImageRect(sceneGroup, "assets/imgs/pg4/extensionContent.png", 360.3, 267.6)
+    extensionContent.x = display.contentCenterX
+    extensionContent.y = 620
+    extensionContent.isVisible = false
+    
+
+    nextPageButton:addEventListener("touch", onNextPageButtonTouch)
+    previousPageButton:addEventListener("touch", onPreviousPageButtonTouch)
+    mockupOption1:addEventListener("touch", onMockupOption1Touch)
+    mockupOption2:addEventListener("touch", onMockupOption2Touch)
+    mockupOption3:addEventListener("touch", onMockupOption3Touch)
+end
+
+function scene:show(event)
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if phase == "did" then
+        Runtime:addEventListener("touch", onTouch)
+    end
+end
+
+function scene:hide(event)
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if phase == "will" then
+        Runtime:removeEventListener("touch", onTouch)
+    end
+end
+
+function scene:destroy(event)
+    local sceneGroup = self.view
+end
+
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
 
 return scene
