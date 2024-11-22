@@ -24,10 +24,9 @@ end
 local function updateElementsVisibility()
     local shouldShow = deviceScreen.isVisible
 
-    -- Atualizar visibilidade dos elementos
     selectedOptionDenaturation.isVisible = shouldShow
-    selectedOptionExtension.isVisible = false -- permanece falso inicialmente
-    selectedOptionGirdling.isVisible = false -- permanece falso inicialmente
+    selectedOptionExtension.isVisible = false
+    selectedOptionGirdling.isVisible = false
 
     mockupOption1.isVisible = shouldShow
     mockupOption1.isHitTestable = shouldShow
@@ -39,8 +38,8 @@ local function updateElementsVisibility()
     mockupOption3.isHitTestable = shouldShow
 
     denaturationContent.isVisible = shouldShow
-    girdlingContent.isVisible = false -- permanece falso inicialmente
-    extensionContent.isVisible = false -- permanece falso inicialmente
+    girdlingContent.isVisible = false
+    extensionContent.isVisible = false
 end
 
 local function onTouch(event)
@@ -83,7 +82,6 @@ local function onTouch(event)
             extractionDevice.isVisible = false
             deviceScreen.isVisible = true
 
-            -- Atualizar visibilidade dos outros elementos
             updateElementsVisibility()
         end
     end
@@ -117,7 +115,6 @@ local function updateContent(selectedContent)
     girdlingContent.isVisible = false
     extensionContent.isVisible = false
 
-    -- Mostrar o conteúdo selecionado
     selectedContent.isVisible = true
 end
 
