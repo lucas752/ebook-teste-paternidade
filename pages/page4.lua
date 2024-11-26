@@ -5,10 +5,33 @@
 -----------------------------------------------------------------------------------------
 
 local composer = require("composer")
+local audioManager = require("audioManager")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, extractionDevice, deviceScreen, selectedOptionDenaturation, selectedOptionExtension, selectedOptionGirdling, mockupOption1, mockupOption2, mockupOption3, denaturationContent, girdlingContent, extensionContent, pageNumber
 local contentAudio, instructions1Audio, denaturationAudio, extensionAudio, girdlingAudio
+local audioButton
+
+local function updateAudioButton()
+	print(audioManager.getAudioState())
+    if audioManager.getAudioState() then
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOff.png" }
+		audioButton.width = 87
+        audioButton.height = 108
+    else
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOn.png" }
+		audioButton.width = 119
+        audioButton.height = 108
+    end
+end
+
+local function onAudioButtonTouch(event)
+    if event.phase == "ended" then
+        audioManager.toggleAudio()
+        updateAudioButton()
+    end
+    return true
+end
 
 system.activate("multitouch")
 
@@ -273,18 +296,27 @@ function scene:create(event)
     girdlingContent.x = display.contentCenterX
     girdlingContent.y = 620
     girdlingContent.isVisible = false
-    
+
+    audioButton = display.newImageRect(sceneGroup, "assets/imgs/audioOn.png", 87, 108)
+    audioButton.x = 670
+    audioButton.y = 80
+    audioButton:addEventListener("touch", onAudioButtonTouch)
+
+    updateAudioButton()
+
     extensionContent = display.newImageRect(sceneGroup, "assets/imgs/pg4/extensionContent.png", 360.3, 267.6)
     extensionContent.x = display.contentCenterX
     extensionContent.y = 620
     extensionContent.isVisible = false
     
+    sceneGroup:insert( audioButton )
 
     nextPageButton:addEventListener("touch", onNextPageButtonTouch)
     previousPageButton:addEventListener("touch", onPreviousPageButtonTouch)
     mockupOption1:addEventListener("touch", onMockupOption1Touch)
     mockupOption2:addEventListener("touch", onMockupOption2Touch)
     mockupOption3:addEventListener("touch", onMockupOption3Touch)
+
 end
 
 function scene:show(event)
@@ -309,6 +341,8 @@ function scene:show(event)
             channel = 1,
             onComplete = playInstructionsAudio
         })
+
+        updateAudioButton()
 
         Runtime:addEventListener("touch", onTouch)
     end

@@ -1,8 +1,31 @@
 local composer = require("composer")
+local audioManager = require("audioManager")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, sampleDna, dnaDetergent, animationStartButton, alcoholPipette, nextAnimationButton, dnaReagent, extractedDna, pageNumber
 local contentAudio, instructions1Audio, instructions2Audio, instructions3Audio, instructions4Audio
+local audioButton
+
+local function updateAudioButton()
+	print(audioManager.getAudioState())
+    if audioManager.getAudioState() then
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOff.png" }
+		audioButton.width = 87
+        audioButton.height = 108
+    else
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOn.png" }
+		audioButton.width = 119
+        audioButton.height = 108
+    end
+end
+
+local function onAudioButtonTouch(event)
+    if event.phase == "ended" then
+        audioManager.toggleAudio()
+        updateAudioButton()
+    end
+    return true
+end
 
 local animationStage = 0
 
@@ -215,6 +238,13 @@ function scene:create(event)
     })
     pageNumber:setFillColor(0.165, 0.267, 0.365)
 
+    audioButton = display.newImageRect(sceneGroup, "assets/imgs/audioOn.png", 87, 108)
+    audioButton.x = 670
+    audioButton.y = 80
+    audioButton:addEventListener("touch", onAudioButtonTouch)
+
+    updateAudioButton()
+
     sampleDna = display.newImageRect(sceneGroup, "assets/imgs/pg3/sampleDna.png", 116.9, 213.5)
     sampleDna.x = 180
     sampleDna.y = 770
@@ -252,6 +282,7 @@ function scene:create(event)
 
     sceneGroup:insert(nextPageButton)
     sceneGroup:insert(previousPageButton)
+    sceneGroup:insert( audioButton )
 end
 
 function scene:show(event)
@@ -272,6 +303,8 @@ function scene:show(event)
             fadein = 500,
             onComplete = playInstructionsAudio
         })
+
+        updateAudioButton()
 
         nextPageButton.touch = onNextPageButtonTouch
         nextPageButton:addEventListener("touch", nextPageButton)

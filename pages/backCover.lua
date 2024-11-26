@@ -6,10 +6,33 @@
 
 local composer = require( "composer" )
 local scene = composer.newScene()
+local audioManager = require("audioManager")
 
 local background, reloadPageButton, previousPageButton, informationBox, referencesButton, referencesBox, closeReferencesButton
 local contentAudio
 local referencesAudio
+local audioButton
+
+local function updateAudioButton()
+	print(audioManager.getAudioState())
+    if audioManager.getAudioState() then
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOff.png" }
+		audioButton.width = 87
+        audioButton.height = 108
+    else
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOn.png" }
+		audioButton.width = 119
+        audioButton.height = 108
+    end
+end
+
+local function onAudioButtonTouch(event)
+    if event.phase == "ended" then
+        audioManager.toggleAudio()
+        updateAudioButton()
+    end
+    return true
+end
 
 local function pauseAllAudios()
     for i = 1, 32 do
@@ -100,11 +123,19 @@ function scene:create( event )
 	closeReferencesButton.y = 400
 	closeReferencesButton.isVisible = false
 
+	audioButton = display.newImageRect(sceneGroup, "assets/imgs/audioOn.png", 87, 108)
+    audioButton.x = 670
+    audioButton.y = 80
+    audioButton:addEventListener("touch", onAudioButtonTouch)
+
+    updateAudioButton()
+
 	sceneGroup:insert( reloadPageButton )
 	sceneGroup:insert( previousPageButton )
 	sceneGroup:insert( referencesButton )
 	sceneGroup:insert( referencesBox )
 	sceneGroup:insert( closeReferencesButton )
+	sceneGroup:insert( audioButton )
 end
 
 function scene:show( event )
@@ -114,6 +145,8 @@ function scene:show( event )
 	if phase == "will" then
 	elseif phase == "did" then
 		audio.play(contentAudio, {loops = 0, channel = 1})
+
+		updateAudioButton()
 
 		reloadPageButton.touch = onReloadButtonTouch
 		reloadPageButton:addEventListener( "touch", reloadPageButton )

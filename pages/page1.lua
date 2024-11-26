@@ -5,11 +5,34 @@
 -----------------------------------------------------------------------------------------
 
 local composer = require("composer")
+local audioManager = require("audioManager")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, pageNumber
 local moreDnaButton, dnaPrecisionButton, dnaPrecisionBox, moreDnaBox, dnaPrecisionClose, moreDnaClose
 local contentAudio, instructionsAudio, dnaDefinitionAudio, testAccuracyAudio
+local audioButton
+
+local function updateAudioButton()
+	print(audioManager.getAudioState())
+    if audioManager.getAudioState() then
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOff.png" }
+		audioButton.width = 87
+        audioButton.height = 108
+    else
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOn.png" }
+		audioButton.width = 119
+        audioButton.height = 108
+    end
+end
+
+local function onAudioButtonTouch(event)
+    if event.phase == "ended" then
+        audioManager.toggleAudio()
+        updateAudioButton()
+    end
+    return true
+end
 
 local function pauseAllAudios()
     for i = 1, 32 do
@@ -137,6 +160,13 @@ function scene:create(event)
     })
     pageNumber:setFillColor(0.165, 0.267, 0.365)
 
+    audioButton = display.newImageRect(sceneGroup, "assets/imgs/audioOn.png", 87, 108)
+    audioButton.x = 670
+    audioButton.y = 80
+    audioButton:addEventListener("touch", onAudioButtonTouch)
+
+    updateAudioButton()
+
     contentText = display.newText({
         parent = sceneGroup,
         text = "O teste de paternidade é uma análise laboratorial que verifica a relação biológica entre um suposto pai e uma criança. Através da comparação de amostras de DNA, é possível determinar com alta precisão se um homem é ou não o pai biológico da criança. Este exame é amplamente utilizado em disputas judiciais, questões familiares e até mesmo em contextos médicos.",
@@ -179,6 +209,7 @@ function scene:create(event)
 
     sceneGroup:insert(nextPageButton)
     sceneGroup:insert(previousPageButton)
+    sceneGroup:insert( audioButton )
 end
 
 function scene:show(event)
@@ -200,6 +231,8 @@ function scene:show(event)
             fadein = 500,
             onComplete = playInstructionsAudio
         })
+
+        updateAudioButton()
 
         nextPageButton.touch = onNextPageButtonTouch
         nextPageButton:addEventListener("touch", nextPageButton)

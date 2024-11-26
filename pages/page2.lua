@@ -3,10 +3,33 @@ physics.start()
 physics.setGravity(0, 9.8)
 
 local composer = require("composer")
+local audioManager = require("audioManager")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, titleText, contentText, instructionText, textBackground, cottonSwab1, personMouthOpen, messageText, pageNumber
 local contentAudio, instructionsAudio
+local audioButton
+
+local function updateAudioButton()
+	print(audioManager.getAudioState())
+    if audioManager.getAudioState() then
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOff.png" }
+		audioButton.width = 87
+        audioButton.height = 108
+    else
+        audioButton.fill = { type = "image", filename = "assets/imgs/audioOn.png" }
+		audioButton.width = 119
+        audioButton.height = 108
+    end
+end
+
+local function onAudioButtonTouch(event)
+    if event.phase == "ended" then
+        audioManager.toggleAudio()
+        updateAudioButton()
+    end
+    return true
+end
 
 local function pauseAllAudios()
     audio.stop(1)
@@ -143,6 +166,13 @@ function scene:create(event)
     })
     instructionText:setFillColor(1, 1, 1)
 
+    audioButton = display.newImageRect(sceneGroup, "assets/imgs/audioOn.png", 87, 108)
+    audioButton.x = 670
+    audioButton.y = 80
+    audioButton:addEventListener("touch", onAudioButtonTouch)
+
+    updateAudioButton()
+
     contentText = display.newText({
         parent = sceneGroup,
         text = "A primeira etapa do teste de paternidade é a coleta das amostras, essa amostra pode ser obtida através da saliva, sangue ou células da mucosa bucal (através de um cotonete).",
@@ -181,6 +211,7 @@ function scene:create(event)
 
     sceneGroup:insert(nextPageButton)
     sceneGroup:insert(previousPageButton)
+    sceneGroup:insert( audioButton )
 end
 
 function scene:show(event)
@@ -201,6 +232,8 @@ function scene:show(event)
             fadein = 500,
             onComplete = playInstructionsAudio
         })
+
+        updateAudioButton()
 
         nextPageButton.touch = onNextPageButtonTouch
         nextPageButton:addEventListener("touch", nextPageButton)
