@@ -1,7 +1,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, sampleDna, dnaDetergent, animationStartButton, alcoholPipette, nextAnimationButton, dnaReagent, extractedDna
+local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, sampleDna, dnaDetergent, animationStartButton, alcoholPipette, nextAnimationButton, dnaReagent, extractedDna, pageNumber
 local contentAudio, instructions1Audio, instructions2Audio, instructions3Audio, instructions4Audio
 
 local animationStage = 0
@@ -204,6 +204,16 @@ function scene:create(event)
         align = "left"
     })
     contentText:setFillColor(0.165, 0.267, 0.365)
+
+    pageNumber = display.newText({
+        parent = sceneGroup,
+        text = "Página 3",
+        x = 80,
+        y = 58,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 25,
+    })
+    pageNumber:setFillColor(0.165, 0.267, 0.365)
 
     sampleDna = display.newImageRect(sceneGroup, "assets/imgs/pg3/sampleDna.png", 116.9, 213.5)
     sampleDna.x = 180

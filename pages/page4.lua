@@ -7,7 +7,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, extractionDevice, deviceScreen, selectedOptionDenaturation, selectedOptionExtension, selectedOptionGirdling, mockupOption1, mockupOption2, mockupOption3, denaturationContent, girdlingContent, extensionContent
+local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, extractionDevice, deviceScreen, selectedOptionDenaturation, selectedOptionExtension, selectedOptionGirdling, mockupOption1, mockupOption2, mockupOption3, denaturationContent, girdlingContent, extensionContent, pageNumber
 local contentAudio, instructions1Audio, denaturationAudio, extensionAudio, girdlingAudio
 
 system.activate("multitouch")
@@ -211,6 +211,16 @@ function scene:create(event)
         align = "left"
     })
     contentText:setFillColor(0.165, 0.267, 0.365)
+
+    pageNumber = display.newText({
+        parent = sceneGroup,
+        text = "Página 4",
+        x = 80,
+        y = 58,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 25,
+    })
+    pageNumber:setFillColor(0.165, 0.267, 0.365)
 
     extractionDevice = display.newImageRect(sceneGroup, "assets/imgs/pg4/extractionDevice.png", 361.9, 324.1)
     extractionDevice.x = display.contentCenterX

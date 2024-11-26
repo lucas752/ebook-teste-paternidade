@@ -5,7 +5,7 @@ physics.setGravity(0, 9.8)
 local composer = require("composer")
 local scene = composer.newScene()
 
-local background, nextPageButton, previousPageButton, titleText, contentText, instructionText, textBackground, cottonSwab1, personMouthOpen, messageText
+local background, nextPageButton, previousPageButton, titleText, contentText, instructionText, textBackground, cottonSwab1, personMouthOpen, messageText, pageNumber
 local contentAudio, instructionsAudio
 
 local function pauseAllAudios()
@@ -154,6 +154,16 @@ function scene:create(event)
         align = "left"
     })
     contentText:setFillColor(0.165, 0.267, 0.365)
+
+    pageNumber = display.newText({
+        parent = sceneGroup,
+        text = "Página 2",
+        x = 80,
+        y = 58,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 25,
+    })
+    pageNumber:setFillColor(0.165, 0.267, 0.365)
 
     personMouthOpen = display.newImageRect(sceneGroup, "assets/imgs/pg2/personMouthOpen.png", 225.4, 343)
     personMouthOpen.x = 150

@@ -7,7 +7,7 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
-local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, legendColors, childParenMatching, father1, father2, father3, father4, childMother, father1Result, father2Result, father3Result, father4Result, backButton
+local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, legendColors, childParenMatching, father1, father2, father3, father4, childMother, father1Result, father2Result, father3Result, father4Result, backButton, pageNumber
 local contentAudio, instructionAudio, isNotFatherAudio, isTheFatherAudio
 
 local initialPositions = {}
@@ -187,6 +187,16 @@ function scene:create( event )
 			align = "left"
 		})
 	contentText:setFillColor(0.165, 0.267, 0.365)
+
+    pageNumber = display.newText({
+        parent = sceneGroup,
+        text = "Página 5",
+        x = 80,
+        y = 58,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 25,
+    })
+    pageNumber:setFillColor(0.165, 0.267, 0.365)
 		
 	childParenMatching = display.newImageRect(sceneGroup, "assets/imgs/pg5/childParentMatching.png", 455, 310.8)
 	childParenMatching.x = display.contentCenterX

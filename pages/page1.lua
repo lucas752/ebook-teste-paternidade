@@ -7,7 +7,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText
+local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, pageNumber
 local moreDnaButton, dnaPrecisionButton, dnaPrecisionBox, moreDnaBox, dnaPrecisionClose, moreDnaClose
 local contentAudio, instructionsAudio, dnaDefinitionAudio, testAccuracyAudio
 
@@ -126,6 +126,16 @@ function scene:create(event)
         align = "center"
     })
     instructionText:setFillColor(1, 1, 1)
+
+    pageNumber = display.newText({
+        parent = sceneGroup,
+        text = "Página 1",
+        x = 80,
+        y = 58,
+        font = "assets/fonts/ComicNeue-Bold.ttf",
+        fontSize = 25,
+    })
+    pageNumber:setFillColor(0.165, 0.267, 0.365)
 
     contentText = display.newText({
         parent = sceneGroup,
