@@ -21,6 +21,7 @@ settings =
 		usesPermissions =
 		{
 			"android.permission.INTERNET",
+			"android.permission.BODY_SENSORS",
 		},
 		fonts = {
             { filename = "assets/fonts/ComicNeue-Regular.ttf", alias = "ComicNeue" }

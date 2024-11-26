@@ -2,6 +2,7 @@ local composer = require("composer")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, sampleDna, dnaDetergent, animationStartButton, alcoholPipette, nextAnimationButton, dnaReagent, extractedDna
+local contentAudio, instructions1Audio, instructions2Audio, instructions3Audio, instructions4Audio
 
 local animationStage = 0
 
@@ -17,6 +18,14 @@ local function onPreviousPageButtonTouch(self, event)
         composer.gotoScene("pages.page2", "slideRight", 800)
         return true
     end
+end
+
+local function pauseAllAudios()
+    audio.stop(1)
+    audio.stop(2)
+    audio.stop(3)
+    audio.stop(4)
+    audio.stop(5)
 end
 
 local function onAnimationStartButtonTouch(event)
@@ -40,6 +49,8 @@ local function onAnimationStartButtonTouch(event)
                         nextAnimationButton.isVisible = true
                         alcoholPipette.isVisible = true
                         animationStage = 1
+                        pauseAllAudios()
+                        audio.play(instructions2Audio, {loops = 0, channel = 3, fadein = 500})
                     end
                 })
             end
@@ -76,6 +87,8 @@ local function onNextAnimationButtonTouch(event)
                             nextAnimationButton.alpha = 1
                             dnaReagent.isVisible = true
                             animationStage = 2
+                            pauseAllAudios()
+                            audio.play(instructions3Audio, {loops = 0, channel = 4, fadein = 500})
                         end
                     })
                 end
@@ -102,8 +115,11 @@ local function onNextAnimationButtonTouch(event)
                                 end
                             })
 
-							instructionText.text = "Agite o dispositivo para misturar a solução e liberar o DNA purificado"
-							instructionText.size = 25
+                            instructionText.text = "Agite o dispositivo para misturar a solução e liberar o DNA purificado"
+                            instructionText.size = 25
+                            
+                            pauseAllAudios()
+                            audio.play(instructions4Audio, {loops = 0, channel = 5, fadein = 500})
                         end
                     })
                 end
@@ -134,9 +150,14 @@ local function onShake(event)
     end
 end
 
-
 function scene:create(event)
     local sceneGroup = self.view
+    
+    contentAudio = audio.loadStream("assets/sounds/pg3/content.mp3")
+    instructions1Audio = audio.loadStream("assets/sounds/pg3/instructions1.mp3")
+    instructions2Audio = audio.loadStream("assets/sounds/pg3/instructions2.mp3")
+    instructions3Audio = audio.loadStream("assets/sounds/pg3/instructions3.mp3")
+    instructions4Audio = audio.loadStream("assets/sounds/pg3/instructions4.mp3")
 
     background = display.newImageRect(sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight)
     background.anchorX = 0
@@ -229,6 +250,19 @@ function scene:show(event)
 
     if phase == "will" then
     elseif phase == "did" then
+        local function playInstructionsAudio()
+            if composer.getSceneName("current") == "pages.page3" then
+                audio.play(instructions1Audio, {loops = 0, channel = 2, fadein = 500})
+            end
+        end
+
+        audio.play(contentAudio, {
+            loops = 0,
+            channel = 1,
+            fadein = 500,
+            onComplete = playInstructionsAudio
+        })
+
         nextPageButton.touch = onNextPageButtonTouch
         nextPageButton:addEventListener("touch", nextPageButton)
 
@@ -243,13 +277,44 @@ function scene:hide(event)
     local sceneGroup = self.view
     local phase = event.phase
 
-    if event.phase == "will" then
+    if phase == "will" then
         nextPageButton:removeEventListener("touch", nextPageButton)
         previousPageButton:removeEventListener("touch", previousPageButton)
         animationStartButton:removeEventListener("touch", onAnimationStartButtonTouch)
         nextAnimationButton:removeEventListener("touch", onNextAnimationButtonTouch)
 
         Runtime:removeEventListener("accelerometer", onShake)
+
+        for i = 1, 32 do
+            if audio.isChannelActive(i) then
+                audio.stop(i)
+            end
+        end
+
+        if contentAudio then
+            audio.dispose(contentAudio)
+            contentAudio = nil
+        end
+
+        if instructions1Audio then
+            audio.dispose(instructions1Audio)
+            instructions1Audio = nil
+        end
+
+        if instructions2Audio then
+            audio.dispose(instructions2Audio)
+            instructions2Audio = nil
+        end
+
+        if instructions3Audio then
+            audio.dispose(instructions3Audio)
+            instructions3Audio = nil
+        end
+
+        if instructions4Audio then
+            audio.dispose(instructions4Audio)
+            instructions4Audio = nil
+        end
     end
 end
 

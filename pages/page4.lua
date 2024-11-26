@@ -8,6 +8,7 @@ local composer = require("composer")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, extractionDevice, deviceScreen, selectedOptionDenaturation, selectedOptionExtension, selectedOptionGirdling, mockupOption1, mockupOption2, mockupOption3, denaturationContent, girdlingContent, extensionContent
+local contentAudio, instructions1Audio, denaturationAudio, extensionAudio, girdlingAudio
 
 system.activate("multitouch")
 
@@ -28,18 +29,16 @@ local function updateElementsVisibility()
     selectedOptionExtension.isVisible = false
     selectedOptionGirdling.isVisible = false
 
-    mockupOption1.isVisible = shouldShow
-    mockupOption1.isHitTestable = shouldShow
-
-    mockupOption2.isVisible = shouldShow
-    mockupOption2.isHitTestable = shouldShow
-
-    mockupOption3.isVisible = shouldShow
-    mockupOption3.isHitTestable = shouldShow
-
     denaturationContent.isVisible = shouldShow
     girdlingContent.isVisible = false
     extensionContent.isVisible = false
+end
+
+local function pauseAllAudios()
+    for i = 1, 32 do
+        audio.stop(i)
+        audio.setVolume(1.0, {channel = i})
+    end
 end
 
 local function onTouch(event)
@@ -52,25 +51,27 @@ local function onTouch(event)
             initialDistance = calculateDistance(finger1.x, finger1.y, finger2.x, finger2.y)
         end
     elseif event.phase == "moved" and isZooming then
-        if finger1 and finger2 and event.id == finger1.id then
-            finger1 = event
-        elseif finger1 and finger2 and event.id == finger2.id then
-            finger2 = event
-        end
-
         if finger1 and finger2 then
-            local currentDistance = calculateDistance(finger1.x, finger1.y, finger2.x, finger2.y)
-            local scale = currentDistance / initialDistance
+            if event.id == finger1.id then
+                finger1 = event
+            elseif event.id == finger2.id then
+                finger2 = event
+            end
 
-            extractionDevice.width = extractionDevice.width * scale
-            extractionDevice.height = extractionDevice.height * scale
+            if finger1 and finger2 then
+                local currentDistance = calculateDistance(finger1.x, finger1.y, finger2.x, finger2.y)
+                local scale = currentDistance / initialDistance
 
-            initialDistance = currentDistance
+                extractionDevice.width = extractionDevice.width * scale
+                extractionDevice.height = extractionDevice.height * scale
+
+                initialDistance = currentDistance
+            end
         end
     elseif event.phase == "ended" or event.phase == "cancelled" then
-        if event.id == finger1.id then
+        if finger1 and event.id == finger1.id then
             finger1 = nil
-        elseif event.id == finger2.id then
+        elseif finger2 and event.id == finger2.id then
             finger2 = nil
         end
 
@@ -82,6 +83,9 @@ local function onTouch(event)
             extractionDevice.isVisible = false
             deviceScreen.isVisible = true
 
+            pauseAllAudios()
+            audio.setVolume(1.0, {channel = 3})
+            audio.play(denaturationAudio, {loops = 0, channel = 3})
             updateElementsVisibility()
         end
     end
@@ -90,6 +94,7 @@ end
 
 local function onNextPageButtonTouch(event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        pauseAllAudios()
         composer.gotoScene("pages.page5", {effect = "slideLeft", time = 800})
         return true
     end
@@ -97,6 +102,7 @@ end
 
 local function onPreviousPageButtonTouch(event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        pauseAllAudios()
         composer.gotoScene("pages.page3", {effect = "slideRight", time = 800})
         return true
     end
@@ -122,6 +128,9 @@ local function onMockupOption1Touch(event)
     if event.phase == "ended" then
         updateSelectedOption(selectedOptionDenaturation)
         updateContent(denaturationContent)
+        pauseAllAudios()
+        audio.setVolume(1.0, {channel = 3})
+        audio.play(denaturationAudio, {loops = 0, channel = 3})
     end
     return true
 end
@@ -130,6 +139,9 @@ local function onMockupOption2Touch(event)
     if event.phase == "ended" then
         updateSelectedOption(selectedOptionGirdling)
         updateContent(girdlingContent)
+        pauseAllAudios()
+        audio.setVolume(1.0, {channel = 4})
+        audio.play(girdlingAudio, {loops = 0, channel = 4})
     end
     return true
 end
@@ -138,12 +150,21 @@ local function onMockupOption3Touch(event)
     if event.phase == "ended" then
         updateSelectedOption(selectedOptionExtension)
         updateContent(extensionContent)
+        pauseAllAudios()
+        audio.setVolume(1.0, {channel = 4})
+        audio.play(extensionAudio, {loops = 0, channel = 4})
     end
     return true
 end
 
 function scene:create(event)
     local sceneGroup = self.view
+
+    contentAudio = audio.loadStream("assets/sounds/pg4/content.mp3")
+    instructions1Audio = audio.loadStream("assets/sounds/pg4/instructions1.mp3")
+    denaturationAudio = audio.loadStream("assets/sounds/pg4/denaturation.mp3")
+    extensionAudio = audio.loadStream("assets/sounds/pg4/extension.mp3")
+    girdlingAudio = audio.loadStream("assets/sounds/pg4/girdling.mp3")
 
     background = display.newImageRect(sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight)
     background.anchorX = 0
@@ -219,19 +240,19 @@ function scene:create(event)
     mockupOption1.x = 265
     mockupOption1.y = 456
     mockupOption1.isVisible = false
-    mockupOption1.isHitTestable = false
+    mockupOption1.isHitTestable = true
 
     mockupOption2 = display.newImageRect(sceneGroup, "assets/imgs/pg4/mockupOption.png", 121.1, 49.7)
     mockupOption2.x = display.contentCenterX
     mockupOption2.y = 456
     mockupOption2.isVisible = false
-    mockupOption2.isHitTestable = false
+    mockupOption2.isHitTestable = true
 
     mockupOption3 = display.newImageRect(sceneGroup, "assets/imgs/pg4/mockupOption.png", 121.1, 49.7)
     mockupOption3.x = 504
     mockupOption3.y = 456
     mockupOption3.isVisible = false
-    mockupOption3.isHitTestable = false
+    mockupOption3.isHitTestable = true
 
     denaturationContent = display.newImageRect(sceneGroup, "assets/imgs/pg4/denaturationContent.png", 439.6, 231)
     denaturationContent.x = display.contentCenterX
@@ -261,6 +282,24 @@ function scene:show(event)
     local phase = event.phase
 
     if phase == "did" then
+        for i = 1, 32 do
+            audio.setVolume(1.0, {channel = i})
+        end
+
+        local function playInstructionsAudio()
+            if composer.getSceneName("current") == "pages.page2" then
+                audio.setVolume(1.0, {channel = 2})
+                audio.play(instructions1Audio, {loops = 0, channel = 2})
+            end
+        end
+
+        audio.setVolume(1.0, {channel = 1})
+        audio.play(contentAudio, {
+            loops = 0,
+            channel = 1,
+            onComplete = playInstructionsAudio
+        })
+
         Runtime:addEventListener("touch", onTouch)
     end
 end
@@ -276,6 +315,14 @@ end
 
 function scene:destroy(event)
     local sceneGroup = self.view
+
+    audio.dispose(contentAudio)
+    audio.dispose(instructions1Audio)
+    audio.dispose(denaturationAudio)
+    audio.dispose(extensionAudio)
+    audio.dispose(girdlingAudio)
+
+    pauseAllAudios()
 end
 
 scene:addEventListener("create", scene)

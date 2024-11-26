@@ -8,6 +8,7 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, titleText, textBackground, legendColors, childParenMatching, father1, father2, father3, father4, childMother, father1Result, father2Result, father3Result, father4Result, backButton
+local contentAudio, instructionAudio, isNotFatherAudio, isTheFatherAudio
 
 local initialPositions = {}
 
@@ -18,6 +19,13 @@ local function saveInitialPositions()
         father3 = { x = father3.x, y = father3.y },
         father4 = { x = father4.x, y = father4.y }
     }
+end
+
+local function pauseAllAudios()
+    for i = 1, 32 do
+        audio.stop(i)
+        audio.setVolume(1.0, {channel = i})
+    end
 end
 
 local function resetState()
@@ -56,6 +64,14 @@ local function handleFatherDrop(father, result)
 
     result.isVisible = true
     backButton.isVisible = true
+
+    pauseAllAudios()
+
+    if result == father2Result then
+        audio.play(isTheFatherAudio, {loops = 0, channel = 3})
+    elseif result == father1Result or result == father3Result or result == father4Result then
+        audio.play(isNotFatherAudio, {loops = 0, channel = 3})
+    end
 end
 
 local function addDragListeners(father, result)
@@ -93,6 +109,7 @@ end
 
 local function onNextPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
+        pauseAllAudios()
 		composer.gotoScene( "pages.backCover", "slideLeft", 800 )
 		return true
 	end
@@ -100,13 +117,26 @@ end
 
 local function onPreviousPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
+        pauseAllAudios()
 		composer.gotoScene( "pages.page4", "slideRight", 800 )
 		return true
 	end
 end
 
+local function playInstructionsAudio()
+    if not audio.isChannelActive(3) and composer.getSceneName("current") == "pages.page5" then
+        audio.setVolume(1.0, {channel = 2})
+        audio.play(instructionAudio, {loops = 0, channel = 2})
+    end
+end
+
 function scene:create( event )
 	local sceneGroup = self.view
+
+    contentAudio = audio.loadStream("assets/sounds/pg5/content.mp3")
+    instructionAudio = audio.loadStream("assets/sounds/pg5/instructions.mp3")
+    isNotFatherAudio = audio.loadStream("assets/sounds/pg5/isNotFather.mp3")
+    isTheFatherAudio = audio.loadStream("assets/sounds/pg5/isTheFather.mp3")
 
 	background = display.newImageRect( sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight )
 	background.anchorX = 0
@@ -223,9 +253,22 @@ end
 function scene:show( event )
 	local sceneGroup = self.view
 	local phase = event.phase
+
+    pauseAllAudios()
 	
 	if phase == "will" then
 	elseif phase == "did" then
+        for i = 1, 32 do
+            audio.setVolume(1.0, {channel = i})
+        end
+
+        audio.setVolume(1.0, {channel = 1})
+        audio.play(contentAudio, {
+            loops = 0,
+            channel = 1,
+            onComplete = playInstructionsAudio
+        })
+
 		nextPageButton.touch = onNextPageButtonTouch
 		nextPageButton:addEventListener( "touch", nextPageButton )
 
@@ -247,6 +290,12 @@ end
 function scene:destroy( event )
 	local sceneGroup = self.view
 	
+    audio.dispose(contentAudio)
+    audio.dispose(instructionAudio)
+    audio.dispose(isNotFatherAudio)
+    audio.dispose(isTheFatherAudio)
+
+    pauseAllAudios()
 end
 
 scene:addEventListener( "create", scene )

@@ -9,6 +9,14 @@ local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText
 local moreDnaButton, dnaPrecisionButton, dnaPrecisionBox, moreDnaBox, dnaPrecisionClose, moreDnaClose
+local contentAudio, instructionsAudio, dnaDefinitionAudio, testAccuracyAudio
+
+local function pauseAllAudios()
+    for i = 1, 32 do
+        audio.stop(i)
+        audio.setVolume(1.0, {channel = i})
+    end
+end
 
 local function onNextPageButtonTouch(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
@@ -28,9 +36,11 @@ local function onMoreDnaButtonTouch(event)
     if event.phase == "ended" or event.phase == "cancelled" then
         dnaPrecisionBox.isVisible = false
         dnaPrecisionClose.isVisible = false
-
         moreDnaBox.isVisible = true
         moreDnaClose.isVisible = true
+
+        pauseAllAudios()
+        audio.play(dnaDefinitionAudio, {loops = 0, channel = 3, fadein = 500})
     end
     return true
 end
@@ -39,6 +49,8 @@ local function onMoreDnaCloseTouch(event)
     if event.phase == "ended" or event.phase == "cancelled" then
         moreDnaBox.isVisible = false
         moreDnaClose.isVisible = false
+
+        pauseAllAudios()
     end
     return true
 end
@@ -47,9 +59,11 @@ local function onDnaPrecisionButtonTouch(event)
     if event.phase == "ended" or event.phase == "cancelled" then
         moreDnaBox.isVisible = false
         moreDnaClose.isVisible = false
-
         dnaPrecisionBox.isVisible = true
         dnaPrecisionClose.isVisible = true
+
+        pauseAllAudios()
+        audio.play(testAccuracyAudio, {loops = 0, channel = 4, fadein = 500})
     end
     return true
 end
@@ -58,12 +72,25 @@ local function onDnaPrecisionCloseTouch(event)
     if event.phase == "ended" or event.phase == "cancelled" then
         dnaPrecisionBox.isVisible = false
         dnaPrecisionClose.isVisible = false
+
+        audio.stop(4)
     end
     return true
 end
 
+local function playInstructionsAudio()
+    if not audio.isChannelActive(3) and not audio.isChannelActive(4) and composer.getSceneName("current") == "pages.page1" then
+        audio.play(instructionsAudio, {loops = 0, channel = 2, fadein = 500})
+    end
+end
+
 function scene:create(event)
     local sceneGroup = self.view
+
+    contentAudio = audio.loadStream("assets/sounds/pg1/content.mp3")
+    instructionsAudio = audio.loadStream("assets/sounds/pg1/instructions.mp3")
+    dnaDefinitionAudio = audio.loadStream("assets/sounds/pg1/dnaDefinition.mp3")
+    testAccuracyAudio = audio.loadStream("assets/sounds/pg1/testAccuracy.mp3")
 
     background = display.newImageRect(sceneGroup, "assets/imgs/pageContentBg.png", display.contentWidth, display.contentHeight)
     background.anchorX = 0
@@ -154,7 +181,16 @@ function scene:show(event)
         dnaPrecisionButton:addEventListener("touch", onDnaPrecisionButtonTouch)
         dnaPrecisionClose:addEventListener("touch", onDnaPrecisionCloseTouch)
 
+        pauseAllAudios()
+
     elseif phase == "did" then
+        audio.play(contentAudio, {
+            loops = 0,
+            channel = 1,
+            fadein = 500,
+            onComplete = playInstructionsAudio
+        })
+
         nextPageButton.touch = onNextPageButtonTouch
         nextPageButton:addEventListener("touch", nextPageButton)
 
@@ -175,11 +211,18 @@ function scene:hide(event)
 
         nextPageButton:removeEventListener("touch", nextPageButton)
         previousPageButton:removeEventListener("touch", previousPageButton)
+
+        pauseAllAudios()
     end
 end
 
 function scene:destroy(event)
     local sceneGroup = self.view
+
+    audio.dispose(contentAudio)
+    audio.dispose(instructionsAudio)
+    audio.dispose(dnaDefinitionAudio)
+    audio.dispose(testAccuracyAudio)
 end
 
 scene:addEventListener("create", scene)

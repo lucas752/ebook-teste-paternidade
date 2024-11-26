@@ -6,9 +6,18 @@ local composer = require("composer")
 local scene = composer.newScene()
 
 local background, nextPageButton, previousPageButton, titleText, contentText, instructionText, textBackground, cottonSwab1, personMouthOpen, messageText
+local contentAudio, instructionsAudio
+
+local function pauseAllAudios()
+    audio.stop(1)
+    audio.stop(2)
+end
 
 local function onNextPageButtonTouch(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        if messageText then
+            messageText.isVisible = false;
+        end
         composer.gotoScene("pages.page3", "slideLeft", 800)
         return true
     end
@@ -84,6 +93,9 @@ end
 
 function scene:create(event)
     local sceneGroup = self.view
+
+    contentAudio = audio.loadStream("assets/sounds/pg2/content.mp3")
+    instructionsAudio = audio.loadStream("assets/sounds/pg2/instructions.mp3")
 
     local screenBounds = {
         top = display.newRect(sceneGroup, display.contentCenterX, -5, display.contentWidth, 10),
@@ -167,6 +179,19 @@ function scene:show(event)
 
     if phase == "will" then
     elseif phase == "did" then
+        local function playInstructionsAudio()
+            if composer.getSceneName("current") == "pages.page2" then
+                audio.play(instructionsAudio, {loops = 0, channel = 2, fadein = 500})
+            end
+        end
+
+        audio.play(contentAudio, {
+            loops = 0,
+            channel = 1,
+            fadein = 500,
+            onComplete = playInstructionsAudio
+        })
+
         nextPageButton.touch = onNextPageButtonTouch
         nextPageButton:addEventListener("touch", nextPageButton)
 
@@ -186,11 +211,16 @@ function scene:hide(event)
         previousPageButton:removeEventListener("touch", previousPageButton)
         cottonSwab1:removeEventListener("touch", onCottonSwabTouch)
         Runtime:removeEventListener("collision", onCollision)
+
+        pauseAllAudios()
     end
 end
 
 function scene:destroy(event)
     local sceneGroup = self.view
+
+    audio.dispose(contentAudio)
+    audio.dispose(instructionsAudio)
 end
 
 scene:addEventListener("create", scene)
