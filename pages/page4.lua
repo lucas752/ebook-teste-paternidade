@@ -214,7 +214,7 @@ function scene:create(event)
     })
     instructionText:setFillColor(1, 1, 1)
 
-    titleText = display.newText(sceneGroup, "Amplificação do DNA", display.contentCenterX, 210, "ComicNeue-Regular", 50)
+    titleText = display.newText(sceneGroup, "Amplificação do DNA", display.contentCenterX, 210, "assets/fonts/ComicNeue-Bold.ttf", 50)
     titleText:setFillColor(0.165, 0.267, 0.365)
 
     textBackground = display.newImageRect(sceneGroup, "assets/imgs/textBackground.png", display.contentWidth, 580)
@@ -329,7 +329,7 @@ function scene:show(event)
         end
 
         local function playInstructionsAudio()
-            if composer.getSceneName("current") == "pages.page2" then
+            if composer.getSceneName("current") == "pages.page4" then
                 audio.setVolume(1.0, {channel = 2})
                 audio.play(instructions1Audio, {loops = 0, channel = 2})
             end

@@ -5,6 +5,7 @@ local scene = composer.newScene()
 local background, nextPageButton, previousPageButton, contentText, instructionText, textBackground, titleText, sampleDna, dnaDetergent, animationStartButton, alcoholPipette, nextAnimationButton, dnaReagent, extractedDna, pageNumber
 local contentAudio, instructions1Audio, instructions2Audio, instructions3Audio, instructions4Audio
 local audioButton
+local isAnimationActive = false
 
 local function updateAudioButton()
 	print(audioManager.getAudioState())
@@ -53,6 +54,7 @@ end
 
 local function onAnimationStartButtonTouch(event)
     if event.phase == "ended" then
+        isAnimationActive = true
         transition.to(animationStartButton, {
             alpha = 0,
             time = 500
@@ -292,7 +294,7 @@ function scene:show(event)
     if phase == "will" then
     elseif phase == "did" then
         local function playInstructionsAudio()
-            if composer.getSceneName("current") == "pages.page3" then
+            if composer.getSceneName("current") == "pages.page3" and not isAnimationActive then
                 audio.play(instructions1Audio, {loops = 0, channel = 2, fadein = 500})
             end
         end

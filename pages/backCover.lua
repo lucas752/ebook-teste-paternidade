@@ -41,13 +41,19 @@ local function pauseAllAudios()
     end
 end
 
-local function onReloadButtonTouch( self, event )
-	if event.phase == "ended" or event.phase == "cancelled" then
-		pauseAllAudios()
-		composer.gotoScene( "pages.cover", "slideRight", 800 )
-		return true
-	end
+local function onReloadButtonTouch(self, event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        pauseAllAudios()
+        composer.removeHidden()
+        composer.gotoScene("pages.cover", {
+            effect = "fade",
+            time = 800,
+            params = {reset = true}
+        })
+        return true
+    end
 end
+
 
 local function onPreviousPageButtonTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then

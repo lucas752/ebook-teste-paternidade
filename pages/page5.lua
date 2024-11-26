@@ -186,7 +186,7 @@ function scene:create( event )
     })
     instructionText:setFillColor(1, 1, 1)
 
-    titleText = display.newText(sceneGroup, "Resultado do teste", display.contentCenterX, 210, "ComicNeue-Regular", 50)
+    titleText = display.newText(sceneGroup, "Resultado do teste", display.contentCenterX, 210, "assets/fonts/ComicNeue-Bold.ttf", 50)
     titleText:setFillColor(0.165, 0.267, 0.365)
 
     textBackground = display.newImageRect(sceneGroup, "assets/imgs/textBackground.png", display.contentWidth, 580)

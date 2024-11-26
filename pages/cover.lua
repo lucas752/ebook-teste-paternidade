@@ -83,6 +83,15 @@ function scene:show( event )
 
 	if phase == "will" then
 	elseif phase == "did" then
+		local params = event.params or {}
+        if params.reset then
+            composer.removeScene("pages.page1")
+            composer.removeScene("pages.page2")
+            composer.removeScene("pages.page3")
+            composer.removeScene("pages.page4")
+            composer.removeScene("pages.page5")
+        end
+		
 		audio.play(contentAudio, {loops = 0, channel = 1})
 
 		updateAudioButton()
